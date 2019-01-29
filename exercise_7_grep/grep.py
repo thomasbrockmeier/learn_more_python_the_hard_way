@@ -6,34 +6,42 @@ import argparse
 import re
 
 
-def grep(args):
+def outer_grep(args):
     for filename in args.filenames:
-        with open(filename, 'r') as fh:
-            for line in fh.readlines():
-                formatted = ''
-                start = end = old_start = old_end = None
+        if len(args.filenames) > 1:
+            print(filename, end='\n\n')
 
-                matches = re.finditer(args.pattern, line)
-                for match in matches:
-                    if start:
-                        old_start, old_end = start, end
+        grep(filename, args.pattern)
 
-                    start, end = match.span()
 
-                    if old_start:
-                        formatted += line[old_end:start]
-                    else:
-                        formatted += line[:start]
+def grep(filename, pattern):
+    with open(filename, 'r') as fh:
+        for line in fh.readlines():
+            formatted = ''
+            start = end = old_start = old_end = None
 
-                    formatted += '\033[91m'
-                    formatted += line[start:end]
-                    formatted += '\033[0m'
+            matches = re.finditer(pattern, line)
+            for match in matches:
+                if start:
+                    old_start, old_end = start, end
 
-                if end:
-                    formatted += line[end:]
+                start, end = match.span()
 
-                if formatted:
-                    print(formatted, end='')
+                if old_start:
+                    formatted += line[old_end:start]
+                else:
+                    formatted += line[:start]
+
+                formatted += '\033[91m'
+                formatted += line[start:end]
+                formatted += '\033[0m'
+
+            if end:
+                formatted += line[end:]
+
+            if formatted:
+                print(formatted, end='')
+        print()
 
 
 if __name__ == "__main__":
@@ -43,4 +51,4 @@ if __name__ == "__main__":
 
     parser.add_argument('pattern', type=str, help='pattern')
     parser.add_argument('filenames', type=str, nargs='+', help='filenames')
-    grep(parser.parse_args())
+    outer_grep(parser.parse_args())
