@@ -10,8 +10,12 @@ import sys
 
 
 def find(args):
-    print(args)
     if not os.path.exists(args.path):
+        print('Could not find path')
+        sys.exit(1)
+
+    if not args.type in ['d', 'f']:
+        print('Unknown type, use "f" or "d"')
         sys.exit(1)
 
     for root, dirs, files in os.walk(args.path):
@@ -30,5 +34,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     find(args)
-
 
